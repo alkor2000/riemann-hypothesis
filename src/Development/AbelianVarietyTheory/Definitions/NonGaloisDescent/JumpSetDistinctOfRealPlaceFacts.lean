@@ -639,8 +639,10 @@ theorem jumpSetCloud_of_realPlaceFacts {L : SizeData₂ D} (h : ∀ j, 1 ≤ j �
     rw [zero_sub, abs_neg, abs_of_nonneg (realPlace_jumpCenter_nonneg F), hc0]; linarith
 
 theorem jumpSetEta_of_realPlaceFacts {L : SizeData₂ D} (h : ∀ j, 1 ≤ j → j ≤ D.R.m → ∀ ρ, JFacts L j ρ)
-    (hpar : L.etaSz + D.R.t + L.Sc ≤ L.sc.b) (ht : 1 ≤ D.R.t) (hS : 0 < L.Sc) (he : 0 < L.etaSz) :
-    JumpAbsoluteBound L := by
+    (hpar : L.etaSz + D.R.t + L.Sc ≤ L.sc.b) : JumpAbsoluteBound L := by
+  have ht : 1 ≤ D.R.t := D.R.t_odd.pos
+  have hS := L.Sc_pos
+  have he := L.etaSz_pos
   have ht' : (1:ℝ) ≤ D.R.t := by exact_mod_cast ht
   have hc0r : ((c0 D : ℚ) : ℝ) = ((D.R.t : ℝ) - 1) / 2 := by simp only [c0]; push_cast; ring
   refine ⟨?_, ?_, ?_, ?_⟩

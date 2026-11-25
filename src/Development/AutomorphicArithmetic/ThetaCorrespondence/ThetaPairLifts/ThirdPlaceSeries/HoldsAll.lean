@@ -115,7 +115,7 @@ theorem stmtJ_holds_alt (D : D7) : _root_.Formalism.MainNotions.AdmissibleParame
     have : (0 : ℝ) ≤ D.R.t := by positivity
     linarith [hP.1, hP.2.1]
   exact ⟨_root_.GlobalTheory.JumpSets.jumpLemma_a_of_admissible_alt_alt hP hG2 hCr hG2g hDi hRd, jumpSetBound_of_realPlaceFacts hF, jumpSetCloud_of_realPlaceFacts hF, jumpSetDistinct_of_realPlaceFacts hF,
-    jumpSetEta_of_realPlaceFacts hF hpar D.R.t_odd.pos L.Sc_pos L.etaSz_pos, jumpSetFinal_of_realPlaceFacts hF, jumpSetGap_of_realPlaceFacts hF⟩
+    jumpSetEta_of_realPlaceFacts hF hpar, jumpSetFinal_of_realPlaceFacts hF, jumpSetGap_of_realPlaceFacts hF⟩
 end GlobalTheory.JumpSets
 end
 end

@@ -11,8 +11,7 @@ Counts of continuous 1-cocycles are best stated for cohomology classes, which ke
 infinite coefficient modules. This file relates the two. Let `π` be a map from the continuous
 1-cocycles `New.Z1 ρ` with kernel the coboundaries `New.B1 ρ`, such as the class map to `H¹`.
 
-* `New.card_eq_card_map_mul_card_inf_B1`, `New.length_eq_length_map_add_length_inf_B1`: a group `W`
-  of cocycles has `|W| = |π(W)| · |W ∩ B¹|`, and the same for lengths.
+* `New.card_eq_card_map_mul_card_inf_B1`: a group `W` of cocycles has `|W| = |π(W)| · |W ∩ B¹|`.
 * `New.card_B1_mul_card_invariants`: `|B¹| · |H⁰| = |M|` for a finite module `M`.
 * `New.card_inf_vanishingAt_eq_card_map`,
   `New.length_inf_vanishingAt_eq_length_map`, `New.infVanishingAtEquivMap`: let `γ` act by a
@@ -53,14 +52,6 @@ theorem card_eq_card_map_mul_card_inf_B1 {H : Type*} [AddGroup H] (π : Z1 ρ �
     ← AddSubgroup.card_mul_index (π.ker.addSubgroupOf W), inf_comm,
     ← AddSubgroup.addSubgroupOf_map_subtype,
     AddSubgroup.card_map_of_injective W.subtype_injective]
-
-/-- Let `π` be an `R`-linear map on the continuous 1-cocycles with kernel the coboundaries `B¹`. A
-submodule `W` of cocycles has the length of its image under `π` plus that of its intersection with
-`B¹`. -/
-theorem length_eq_length_map_add_length_inf_B1 {H : Type*} [AddCommGroup H] [Module R H]
-    (π : Z1 ρ →ₗ[R] H) (hπ : LinearMap.ker π = B1 ρ) (W : Submodule R (Z1 ρ)) :
-    length R W = length R (W.map π) + length R ↥(W ⊓ B1 ρ) := by
-  rw [← relLength_add_length_inf W (B1 ρ), ← hπ, relLength_ker]
 
 /-- The coboundary `g ↦ ρ g m - m` of `m`, as a continuous 1-cocycle, when the orbit maps of `ρ` are
 continuous. -/
@@ -206,7 +197,7 @@ theorem length_inf_vanishingAt_eq_length_map {γ : G} {ζ : R} (hγ : ∀ m : M,
   have h_bot : W ⊓ vanishingAt ρ γ ⊓ B1 ρ = ⊥ := (Submodule.eq_bot_iff _).2 fun z hz ↦
     eq_zero_of_mem_B1_of_apply_eq_zero hγ hζ (Submodule.mem_inf.1 hz).2
       (Submodule.mem_inf.1 (Submodule.mem_inf.1 hz).1).2
-  rw [length_eq_length_map_add_length_inf_B1 π hπ, h_bot,
+  rw [← length_map_add_length_inf_ker (W ⊓ vanishingAt ρ γ) π, hπ, h_bot,
     map_inf_vanishingAt_eq_map_of_linear hγ hζ hρ π hπ hBW,
     length_eq_zero (M := ↥(⊥ : Submodule R (Z1 ρ))), add_zero]
 

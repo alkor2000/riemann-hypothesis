@@ -4,6 +4,7 @@ public import TauCeti.RepresentationTheory.Homological.ContCohomology.Additive
 public import TauCeti.RepresentationTheory.Homological.ContCohomology.ContinuousCohomologyIso
 public import Mathlib.Combinatorics.Quiver.ReflQuiver
 public import Lib.ClassField.GaloisCohomology.ClassCounts
+import Lib.General.Algebra.FittingIdealsAndLengths
 
 /-!
 # The cohomology of a discrete module
@@ -173,8 +174,8 @@ theorem card_eq_card_map_π₁_mul_card_inf_B1 (W : Submodule R (Z1 A.ρ)) :
 /-- A module `W` of continuous 1-cocycles has the length of its classes in `H¹(Γ, A)` plus that of
 its intersection with the coboundaries. -/
 theorem length_eq_length_map_π₁_add_length_inf_B1 (W : Submodule R (Z1 A.ρ)) :
-    length R W = length R (W.map A.π₁) + length R ↥(W ⊓ B1 A.ρ) :=
-  length_eq_length_map_add_length_inf_B1 A.π₁ A.ker_π₁ W
+    length R W = length R (W.map A.π₁) + length R ↥(W ⊓ B1 A.ρ) := by
+  rw [← A.ker_π₁, length_map_add_length_inf_ker]
 
 /-- The explicit `H¹`, continuous 1-cocycles modulo coboundaries, is `H¹(Γ, A)`, `R`-linearly. -/
 def quotEquivH1 : (Z1 A.ρ ⧸ B1 A.ρ) ≃ₗ[R] A.H 1 :=

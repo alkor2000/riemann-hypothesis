@@ -268,9 +268,7 @@ lemma exists_rankInner_labelChar_eq_finMean (hP : Irreducible P) (hx : Polynomia
   simp only [consEquiv_apply, prod_univ_succ, cons_zero, cons_succ]
   rw [block z u]
   -- The sign in `B'` cancels the one split off by `pow_add`.
-  simp [θ, mul_assoc, mul_left_comm]
-  rw [← mul_assoc, ← pow_add, ← two_mul, pow_mul]
-  simp
+  simp [θ, field, ← pow_mul]
 
 /-- Let `x` be a root of the irreducible `P` over `k`, and let `a j < deg P` (`j < g`) be exponents
 such that every root of `P` over `k'` is conjugate over `k'` to some `x ^ |k| ^ a j`. If

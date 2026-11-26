@@ -581,17 +581,25 @@ lemma mulVec_adjugate_top_eq_zero (hj : 𝔰.ϱ < j.val) (h_minor : leadingMinor
   set Y : Matrix (Fin (𝔰.ϱ + 1)) (Fin (𝔰.ϱ + 1)) E := paddedLeading j Z with hY
   set P : Matrix (Fin 𝔰.ϱ) (Fin (𝔰.ϱ + 1)) E := isotropicRows Z with hP_def
   let α : Matrix (Fin (𝔰.ϱ + 1)) (Fin 𝔰.ϱ) E := Y.adjugate.submatrix id castSucc
-  have hP_adj (a : Fin 𝔰.ϱ) (b : Fin (𝔰.ϱ + 1)) :
-      (P * Y.adjugate) a b = if a.castSucc = b then Y.det else 0 :=
-    calc (P * Y.adjugate) a b = (Y * Y.adjugate) a.castSucc b := by
-          simp [hP_def, hY, Matrix.mul_apply, paddedLeading, a.is_lt.trans hj]
-      _ = _ := by simp [mul_adjugate, Matrix.one_apply]
-  have h_last : P *ᵥ Y.adjugate.col 𝔰.top = 0 := by
-    ext a
-    exact (hP_adj a 𝔰.top).trans (ite_eq_right (castSucc_lt_last a).ne)
-  have hPα : P * α = Y.det • 1 := by
+  have hP_rows : P = Y.submatrix castSucc id := by
     ext a b
-    exact (hP_adj a b.castSucc).trans (by simp [Matrix.one_apply])
+    simp [hP_def, hY, paddedLeading, a.is_lt.trans hj]
+  have hP_adj : P * Y.adjugate =
+      (Y.det • (1 : Matrix (Fin (𝔰.ϱ + 1)) (Fin (𝔰.ϱ + 1)) E)).submatrix castSucc id := by
+    rw [← mul_adjugate]
+    simpa only [submatrix_id_id, ← hP_rows] using
+      (submatrix_mul Y Y.adjugate castSucc id id Function.bijective_id).symm
+  have h_last : P *ᵥ Y.adjugate.col 𝔰.top = 0 := by
+    rw [← col_mul_eq_mulVec_col, hP_adj]
+    ext a
+    simp [(castSucc_lt_last a).ne]
+  have hPα : P * α = Y.det • 1 := by
+    have h := (submatrix_mul P Y.adjugate id id castSucc Function.bijective_id).symm
+    simp only [submatrix_id_id, hP_adj, submatrix_submatrix,
+      Function.comp_id, Function.id_comp] at h
+    change P * α =
+      Y.det • (1 : Matrix (Fin (𝔰.ϱ + 1)) (Fin (𝔰.ϱ + 1)) E).submatrix castSucc castSucc at h
+    rwa [submatrix_one castSucc (castSucc_injective _)] at h
   have h_kill : (Pᴴ * μ) *ᵥ Y.adjugate.col 𝔰.top = 0 := by
     rw [← neg_eq_zero, ← neg_mulVec, ← h_gram, ← mulVec_mulVec, h_last, mulVec_zero]
   have h_det : star Y.det ≠ 0 := by simpa [hY] using h_minor

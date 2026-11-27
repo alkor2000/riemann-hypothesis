@@ -186,7 +186,7 @@ lemma Gf.eq_of_supportedOn (hg : g ∈ supportedOn n S) (hk : k ∈ supportedOn 
   · rw [mem_supportedOn.1 hg u hu hu_star, mem_supportedOn.1 hk u hu hu_star]
 
 /-- If a finite adelic unitary matrix is integral outside `S ∪ S̄`, it is integral everywhere
-exactly when it is integral on `S`. Unitarity transfers integrality from a place to its conjugate. -/
+exactly when it is integral on `S`. Unitarity transfers integrality to the conjugate place. -/
 lemma Gf.mem_stdLevel_iff_of_integral_off (h_off : g ∈ localLevel n S.conjClosureᶜ) :
     g ∈ stdLevel E n ↔ ∀ w ∈ S, g.atPlace w ∈ localIntGL n w := by
   refine ⟨fun h w _ ↦ mem_stdLevel_iff.1 h w, fun h ↦ mem_stdLevel_iff.2 fun w ↦ ?_⟩

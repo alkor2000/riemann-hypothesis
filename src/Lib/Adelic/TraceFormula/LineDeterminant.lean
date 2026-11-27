@@ -6,6 +6,7 @@ import Mathlib.LinearAlgebra.Charpoly.BaseChange
 import Mathlib.LinearAlgebra.Eigenspace.Triangularizable
 import Mathlib.LinearAlgebra.Eigenspace.Zero
 import Mathlib.Analysis.InnerProductSpace.NormDet
+import TauCeti.LinearAlgebra.Matrix.Charpoly.Newton
 public import Lib.Speed
 
 /-!
@@ -149,39 +150,40 @@ lemma trace_restrictGenEigenspace_eq_of_ne_zero (h : Commute A T) (h' : Commute 
   refine trace_restrictGenEigenspace_eq _ _ (fun l ↦ ?_) μ
   rw [← mul_assoc, ← mul_assoc, ← pow_succ, ← pow_succ, h_trace]
 
-/-- The trace of the identity on a generalised eigenspace is the dimension of that space. -/
-lemma trace_restrictGenEigenspace_one (A : End ℂ B) (μ : ℂ) :
-    trace ℂ (A.maxGenEigenspace μ) (restrictGenEigenspace (Commute.one_right A) μ) =
-      finrank ℂ (A.maxGenEigenspace μ) :=
-  trace_one ℂ (A.maxGenEigenspace μ)
-
-/-- Operators whose generalised eigenspaces have the same dimensions for every `μ` have the same
-characteristic polynomial, as these dimensions are the multiplicities of its roots. -/
-lemma charpoly_eq_of_finrank_maxGenEigenspace_eq
-    (h_finrank : ∀ μ : ℂ, finrank ℂ (A.maxGenEigenspace μ) = finrank ℂ (A'.maxGenEigenspace μ)) :
-    A.charpoly = A'.charpoly := by
-  have h_roots : A.charpoly.roots = A'.charpoly.roots := by
-    ext μ
-    simp_rw [count_roots, ← finrank_maxGenEigenspace_eq, h_finrank]
-  rw [(IsAlgClosed.splits A.charpoly).eq_prod_roots_of_monic A.charpoly_monic,
-    (IsAlgClosed.splits A'.charpoly).eq_prod_roots_of_monic A'.charpoly_monic, h_roots]
-
-lemma finrank_maxGenEigenspace_zero_of_det_ne_zero (h_det : T.det ≠ 0) :
-    finrank ℂ (T.maxGenEigenspace 0) = 0 := by
-  have h_unit : IsUnit T := (isUnit_iff_isUnit_det T).2 h_det.isUnit
-  rw [T.maxGenEigenspace_eq_genEigenspace_finrank, End.genEigenspace_zero_nat,
-    (isUnit_iff_ker_eq_bot _).1 (h_unit.pow _), finrank_bot]
+/-- The degree of `det (1 - X A)` is the size of `A` when `A` is invertible. -/
+private lemma natDegree_charpolyRev_of_det_ne_zero {K ι : Type*} [Field K] [Fintype ι]
+    [DecidableEq ι] {A : Matrix ι ι K} (h : A.det ≠ 0) :
+    A.charpolyRev.natDegree = Fintype.card ι := by
+  refine (Matrix.natDegree_charpolyRev_le A).antisymm (le_natDegree_of_ne_zero ?_)
+  rw [Matrix.coeff_charpolyRev_card]
+  exact mul_ne_zero (pow_ne_zero _ (neg_ne_zero.mpr one_ne_zero)) h
 
 /-- Two invertible operators with the same traces of all positive powers have the same
 characteristic polynomial. -/
 lemma charpoly_eq_of_trace_pow_succ_eq (h_det : T.det ≠ 0) (h_det' : T'.det ≠ 0)
     (h_trace : ∀ i : ℕ, trace ℂ B (T ^ (i + 1)) = trace ℂ B' (T' ^ (i + 1))) :
     T.charpoly = T'.charpoly := by
-  refine charpoly_eq_of_finrank_maxGenEigenspace_eq fun μ ↦ Nat.cast_injective (R := ℂ) ?_
-  obtain rfl | hμ := eq_or_ne μ 0
-  · simp [finrank_maxGenEigenspace_zero_of_det_ne_zero, h_det, h_det']
-  rw [← trace_restrictGenEigenspace_one, ← trace_restrictGenEigenspace_one]
-  exact trace_restrictGenEigenspace_eq_of_ne_zero _ _ (fun l ↦ by simp only [mul_one, h_trace]) hμ
+  classical
+  let b := Free.chooseBasis ℂ B
+  let b' := Free.chooseBasis ℂ B'
+  let M := toMatrix b b T
+  let M' := toMatrix b' b' T'
+  -- Newton's identities determine the reversed characteristic polynomials.
+  have h_reverse : M.charpolyRev = M'.charpolyRev := by
+    apply Matrix.charpolyRev_eq_iff_trace_pow_eq.2
+    intro j hj
+    obtain ⟨i, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hj.ne'
+    simpa [M, M', trace_eq_matrix_trace ℂ b, trace_eq_matrix_trace ℂ b', ← toMatrix_pow] using
+      h_trace i
+  -- Invertibility gives a nonzero coefficient in top degree, recovering the matrix size.
+  have hM_det : M.det ≠ 0 := by simpa [M] using h_det
+  have hM'_det : M'.det ≠ 0 := by simpa [M'] using h_det'
+  have h_size : Fintype.card (Free.ChooseBasisIndex ℂ B) =
+      Fintype.card (Free.ChooseBasisIndex ℂ B') := calc
+    _ = M.charpolyRev.natDegree := (natDegree_charpolyRev_of_det_ne_zero hM_det).symm
+    _ = M'.charpolyRev.natDegree := congrArg natDegree h_reverse
+    _ = _ := natDegree_charpolyRev_of_det_ne_zero hM'_det
+  simpa [M, M'] using (Matrix.charpolyRev_eq_charpolyRev_iff h_size).1 h_reverse
 
 /-- For an idempotent `e`, the determinant of `1 + c e` is `(1 + c) ^ rank e`. -/
 lemma det_one_add_smul_of_isIdempotentElem {e : End ℂ B} (he : IsIdempotentElem e) (c : ℂ) :
